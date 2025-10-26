@@ -36,3 +36,4 @@ jobs:
         with:
           files: dist/myapp-linux-amd64.tar.gz
         if: startsWith(github.ref, 'refs/tags/')
+        
