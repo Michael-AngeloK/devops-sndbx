@@ -25,6 +25,11 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
             ghcr.io/${{ github.repository }}:latest
+      
+      - name: Build artefact
+        run: |
+          mkdir -p dist
+          tar czf dist/myapp-linux-amd64.tar.gz app.py Dockerfile
 
       - name: Release
         uses: softprops/action-gh-release@v1
