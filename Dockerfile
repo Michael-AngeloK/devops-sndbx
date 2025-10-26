@@ -8,4 +8,5 @@ RUN pip install --no-cache-dir --user pytest
 FROM python:3.11-alpine
 WORKDIR /build
 COPY --from=builder /build/app.py .
+ENV PATH=/root/.local/bin:$PATH 
 CMD ["python", "app.py"]
