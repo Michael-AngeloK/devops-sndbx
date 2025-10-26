@@ -9,9 +9,3 @@ FROM python:3.11-alpine
 WORKDIR /build
 COPY --from=builder /build/app.py .
 CMD ["python", "app.py"]
-
-
-# FROM python:3.11-alpine
-# WORKDIR /app
-# COPY app.py .
-# CMD ["python","app.py"]
