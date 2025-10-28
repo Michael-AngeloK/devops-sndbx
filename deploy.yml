@@ -10,8 +10,9 @@ spec:
     metadata:
       labels: {app: myapp}
     spec:
+      # hostNetwork: true
       containers:
       - name: myapp
-        image: ghcr.io/michael-angelok/devops-sndbx:84f6de585316004f9a141f2775ddbfdcecff5e02
+        image: ghcr.io/michael-angelok/devops-sndbx:web2
         ports:
         - containerPort: 8080
