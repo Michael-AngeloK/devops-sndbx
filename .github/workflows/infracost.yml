@@ -16,17 +16,15 @@ jobs:
         with:
             api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-      - name: Generate Infracost diff
+      - name: Generate cost estimate
         run: |
-          infracost breakdown \
-           --path=terraform \
-           --format=json \
-           --compare-to=infracost-base.json \
-          --out-file=/tmp/infracost.json
+          infracost breakdown --path=terraform \
+                              --format=json \
+                              --out-file=/tmp/infracost.json
 
       - name: Post Infracost comment
         uses: infracost/actions/comment@v1
         with:
-            path: /tmp/infracost.json
-            behavior: new
-            github-token: ${{ secrets.GITHUB_TOKEN }}     
+          path: /tmp/infracost.json
+          behavior: new           # always create fresh comment
+          github-token: ${{ secrets.GITHUB_TOKEN }}
