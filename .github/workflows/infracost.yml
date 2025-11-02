@@ -22,9 +22,10 @@ jobs:
                               --format=json \
                               --out-file=/tmp/infracost.json
 
-      - name: Post PR comment
+      - name: Post Infracost comment
         uses: infracost/actions/comment@v1
         with:
-          path: /tmp/infracost.json          
-          behavior: update
-          target-type: same                  
+            path: /tmp/infracost.json
+            behavior: new
+            target-type: same
+            github-token: ${{ secrets.GITHUB_TOKEN }}          
