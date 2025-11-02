@@ -5,7 +5,7 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"hello Mirasol, du kriegst richtig Popohaue wenn du hier kommst.\n")
+        self.wfile.write(b"hello \n")
 
 srv = HTTPServer(("", 8080), Handler)
 print("serving on :8080")
