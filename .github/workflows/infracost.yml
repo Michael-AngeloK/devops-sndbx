@@ -16,11 +16,15 @@ jobs:
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-      - name: Generate cost estimate
-        run: infracost breakdown --path=terraform --format=json --out-file=/tmp/infracost.json
+      - name: Generate Infracost JSON
+        run: |
+          infracost breakdown --path=terraform \
+                              --format=json \
+                              --out-file=/tmp/infracost.json
 
       - name: Post PR comment
         uses: infracost/actions/comment@v1
         with:
-          file: /tmp/infracost.json
-          behavior: update   # keep one comment, update it on push
+          path: /tmp/infracost.json          
+          behavior: update
+          target-type: same                  
