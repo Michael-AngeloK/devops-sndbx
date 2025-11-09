@@ -46,6 +46,7 @@ jobs:
         id: plan
         run: terraform plan -no-color -out=tfplan
         working-directory: terraform/eks
+        
       - name: Setup Infracost
         uses: infracost/actions/setup@v2
         with:
