@@ -46,7 +46,18 @@ jobs:
         id: plan
         run: terraform plan -no-color -out=tfplan
         working-directory: terraform/eks
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
 
+      - name: Generate cost diff
+        run: |
+          infracost breakdown \
+            --path=terraform/eks \
+            --format=json \
+            --out-file=/tmp/infracost.json
+        
       - name: Comment PR
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
