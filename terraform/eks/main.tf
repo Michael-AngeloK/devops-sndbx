@@ -1,10 +1,21 @@
+# terraform/eks/main.tf
+terraform {
+  required_version = ">= 0.14"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.62"
+    }
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
 }
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
+  version = "3.19.0"
 
   name = "devops-sndbx-vpc"
   cidr = "10.0.0.0/16"
@@ -25,24 +36,24 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.0"
+  version = "18.31.2"
 
   cluster_name    = "eks-devops"
-  cluster_version = "1.30"
+  cluster_version = "1.27"
 
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
+  vpc_id                          = module.vpc.vpc_id
+  subnet_ids                      = module.vpc.private_subnets
+  cluster_endpoint_private_access = true
+  cluster_endpoint_public_access  = true
 
-  # 1 managed node-group, t3.micro spot
   eks_managed_node_groups = {
     spot = {
-      desired_size = 1
-      max_size     = 2
-      min_size     = 1
+      desired_capacity = 1
+      max_capacity     = 2
+      min_capacity     = 1
 
       instance_types = ["t3.micro"]
       capacity_type  = "SPOT"
-      ami_type       = "AL2_x86_64"
     }
   }
 
