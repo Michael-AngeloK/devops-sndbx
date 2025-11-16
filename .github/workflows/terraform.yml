@@ -1,0 +1,90 @@
+name: Terraform
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/eks/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/eks/**'
+
+env:
+  AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION:            us-east-1
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        working-directory: terraform/eks
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: terraform/eks
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: terraform/eks
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -out=tfplan
+        working-directory: terraform/eks
+        
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Generate cost diff
+        run: |
+          infracost breakdown \
+            --path=terraform/eks \
+            --format=json \
+            --out-file=/tmp/infracost.json
+        
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const output = `#### Terraform Format 🖌 \`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️ \`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖 \`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`terraform
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\`
+
+            </details>
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+    #   - name: Terraform Apply
+    #     if: github.ref == 'refs/heads/main'
+    #     run: terraform apply -auto-approve tfplan
+    #     working-directory: terraform/eks
